@@ -87,7 +87,7 @@ const listEvents = auth=> {
             events.map((event, i) => {
                 const start = event.start.dateTime || event.start.date;
                 var eventList = (`${start} - ${event.summary}`);
-                console.log(eventList)
+                // console.log(eventList)
                 return eventList
             });
         } else {
@@ -95,5 +95,5 @@ const listEvents = auth=> {
         }
     });
 }
-exports = {events: listEvents};
+module.exports =  listEvents;
 
