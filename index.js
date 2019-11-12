@@ -1,4 +1,6 @@
 const fsp = require("fs").promises;
+const { google } = require('googleapis');
+
 
 async function authorize(credentials) {
     const { client_secret, client_id, redirect_uris } = credentials.installed;
@@ -89,8 +91,8 @@ module.exports = async function () {
     let auth;
     try {
         auth = await authorize(JSON.parse(content));
-    } catch {
-        return console.log("Authorization failed");
+    } catch(err) {
+        return console.log(err);
     }
 
     listEvents(auth);
