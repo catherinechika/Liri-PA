@@ -1,6 +1,10 @@
 const events = require("./index.js")
 const listEvent = events()
 
-// listEvent.then(eventList=> 
-    console.log ( "from yonder:" + listEvent.eventList)
-    // )
+const promise = listEvent
+
+const list = () => console.log("from yonder: " + list)
+const error = () => console.log("error")
+
+promise.then(list, error)
+

@@ -71,6 +71,7 @@ function getAccessToken(oAuth2Client) {
 }
 
 const listEvents = auth => {
+    const eventArray=[]
     const calendar = google.calendar({ version: "v3", auth });
     return new Promise(
         resolve =>
@@ -91,8 +92,9 @@ const listEvents = auth => {
                             events.map(event => {
                                 const start = event.start.dateTime || event.start.date;
                                 let eventList = `${start} - ${event.summary}`;
+                                eventArray.push(eventList)
                                 console.log(eventList)
-                                return eventList
+                                // return eventList
                             })
                         )
                     } else {
@@ -101,6 +103,7 @@ const listEvents = auth => {
                 }
             )
     );
+    console.log(eventArray)
 };
 module.exports = async function () {
     let credentials;
