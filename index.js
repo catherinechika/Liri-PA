@@ -1,6 +1,21 @@
 const fsp = require("fs").promises;
 const { google } = require('googleapis');
+// const fs = require('fs');
+const readline = require('readline');
 
+// If modifying these scopes, delete token.json.
+const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
+// The file token.json stores the user's access and refresh tokens, and is
+// created automatically when the authorization flow completes for the first
+// time.
+const TOKEN_PATH = 'token.json';
+
+/**
+ * Create an OAuth2 client with the given credentials, and then execute the
+ * given callback function.
+ * @param {Object} credentials The authorization client credentials.
+ * @param {function} callback The callback to call with the authorized client.
+ */
 
 async function authorize(credentials) {
     const { client_secret, client_id, redirect_uris } = credentials.installed;
@@ -19,6 +34,12 @@ async function authorize(credentials) {
         return getAccessToken(oAuth2Client);
     }
 }
+/**
+ * Get and store new token after prompting for user authorization, and then
+ * execute the given callback with the authorized OAuth2 client.
+ * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
+ * @param {getEventsCallback} callback The callback for the authorized client.
+ */
 
 function getAccessToken(oAuth2Client) {
     const authUrl = oAuth2Client.generateAuthUrl({
@@ -52,34 +73,35 @@ function getAccessToken(oAuth2Client) {
 const listEvents = auth => {
     const calendar = google.calendar({ version: "v3", auth });
     return new Promise(
-        resolve,
-        calendar.events.list(
-            {
-                calendarId: "primary",
-                timeMin: new Date().toISOString(),
-                maxResults: 10,
-                singleEvents: true,
-                orderBy: "startTime"
-            },
-            (err, res) => {
-                if (err) return console.log("The API returned an error: " + err);
-                const events = res.data.items;
-                if (events.length) {
-                    console.log("Upcoming 10 events:");
-                    events.map((event, i) => {
-                        const start = event.start.dateTime || event.start.date;
-                        var eventList = `${start} - ${event.summary}`;
-                        // console.log(eventList)
-                        resolve(eventList);
-                    });
-                } else {
-                    console.log("No upcoming events found.");
+        resolve =>
+            calendar.events.list(
+                {
+                    calendarId: "primary",
+                    timeMin: new Date().toISOString(),
+                    maxResults: 10,
+                    singleEvents: true,
+                    orderBy: "startTime"
+                },
+                (err, res) => {
+                    if (err) return console.log("The API returned an error: " + err);
+                    const events = res.data.items;
+                    if (events.length) {
+                        console.log("Upcoming 10 events:");
+                        resolve(
+                            events.map(event => {
+                                const start = event.start.dateTime || event.start.date;
+                                let eventList = `${start} - ${event.summary}`;
+                                console.log(eventList)
+                                return eventList
+                            })
+                        )
+                    } else {
+                        console.log("No upcoming events found.");
+                    }
                 }
-            }
-        )
+            )
     );
 };
-
 module.exports = async function () {
     let credentials;
     try {
@@ -91,7 +113,7 @@ module.exports = async function () {
     let auth;
     try {
         auth = await authorize(JSON.parse(content));
-    } catch(err) {
+    } catch (err) {
         return console.log(err);
     }
 
